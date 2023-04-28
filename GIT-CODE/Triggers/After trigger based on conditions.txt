@@ -1,0 +1,42 @@
+trigger fiquest_intergration on Account (after insert, after update) 
+{
+    Set<Id> accountIdSet = new Set<Id>();
+    Set<Id> accountIdSet2 = new Set<Id>();
+    Set<Id> accountIdSet3 = new Set<Id>();
+    //if(checkRecursive.runOnce())
+    //{
+        for(Account account: trigger.new)
+        {
+            system.debug('account1223>>>>'+account.id);
+            system.debug('account12>>>>'+account.Move_to_FIQUEST__c);
+            system.debug('account>>>>'+account.Status__c);
+            
+            if(Trigger.isinsert && account.Move_to_FIQUEST__c==true)
+            {
+                system.debug('account12234444>>>>'+account.id);
+                accountIdSet.add(account.id);
+            }
+            else if (Trigger.isUpdate && account.Fileds_Check__c==true && account.Move_to_FIQUEST__c==true )
+            {
+                accountIdSet3.add(account.id);
+            }
+            
+            else if (Trigger.isUpdate  && account.Move_to_FIQUEST__c==true && Trigger.oldMap.get(account.Id).Status__c != account.Status__c && account.Status__c=='inactive' )
+            {
+                accountIdSet2.add(account.id);
+            }
+        }
+        if(!accountIdSet.isEmpty())
+        {
+            
+            FiquestIntegrationMove_to_FIQUEST.getAccessToken(accountIdSet);
+        }
+        else if(!accountIdSet3.isEmpty()){
+            FiquestIntegretion_Update.getAccessToken(accountIdSet3);
+        }
+        else if(!accountIdSet2.isEmpty())
+        {
+            FiquestIntegration_Deactivate_to_FIQUEST.getAccessToken(accountIdSet2);
+        }
+    //}
+}

@@ -1,0 +1,64 @@
+@isTest
+public class FiquestIntegretioUpdateTest {
+  @testSetup static void setup() {
+        // Create common test accounts
+        List<Account> testAccts = new List<Account>();
+        for(Integer i=0;i<2;i++) {
+            testAccts.add(new Account(Name = 'TestAcct'+i ));
+            //testAccts.add(new Account(Credit_Union_ID__c = '936575552'+i ));
+        }
+        insert testAccts;        
+    }
+    
+    @isTest
+    static void testUpdateAccount(){
+         //Account acc = [SELECT Id FROM Account where Move_to_FIQUEST__c=true LIMIT 1];
+        Account acc = [SELECT Id,name,Move_to_FIQUEST__c,Credit_Union_ID__c,Learning_Lab_Champion__c FROM Account WHERE Name='TestAcct0' LIMIT 1];
+
+        acc.name ='New value';
+        acc.Credit_Union_ID__c='1729641265';
+        acc.Move_to_FIQUEST__c=true;
+        acc.Status__c='inactive';
+        Update acc;
+        
+        
+        system.assertEquals(acc.name, 'New value');
+        system.assertEquals(acc.Credit_Union_ID__c, '1729641265');
+        
+        HttpResponse mockResponse = new HttpResponse();
+        mockResponse.setStatusCode(200);
+        mockResponse.setBody('{"access_token":"test_token"}');
+        
+       Test.setMock(HttpCalloutMock.class, new FiquestIntegration_Deactivate_to_FIQUESTMock(mockResponse));
+         //Test.setMock(HttpCalloutMock.class, new FiquestIntegrationMove_to_FIQUESTMock(mockResponse));
+        
+        
+        
+       // FiquestIntegrationMove_to_FIQUEST.getAccessToken(new Set<Id>{testAccount1.Id});
+        //Test.setMock(HttpCalloutMock.class, new FiquestIntegration_Deactivate_to_FIQUESTMock(mockResponse));
+        //Test.setMock(HttpCalloutMock.class, new FiquestIntegration_Deactivate_to_FIQUESTMock(mockResponse));
+        
+        Test.startTest();
+        // set up the mock http callout
+        
+       // FiquestIntegrationMove_to_FIQUEST.getAccessToken(new Set<Id>{acc.Id});
+        //FiquestIntegration_Deactivate_to_FIQUEST.getAccessToken(new Set<Id>{acc.Id});
+         
+        FiquestIntegretion_Update.getAccessToken(new Set<Id>{acc.Id});
+        
+        Test.stopTest();
+    }
+    
+    private class FiquestIntegration_Deactivate_to_FIQUESTMock implements HttpCalloutMock {
+        private HttpResponse response;
+        
+        public FiquestIntegration_Deactivate_to_FIQUESTMock(HttpResponse response) {
+            this.response = response;
+        }
+        
+        public HttpResponse respond(HttpRequest request) {
+            return response;
+        }
+    }
+    
+    }

@@ -1,0 +1,54 @@
+trigger fiquest_intergration2 on Account (before Update) {
+    if(checkRecursive2.runOnce())
+    {
+        for (Account account : Trigger.new) {
+            
+            if (account.Move_to_FIQUEST__c==true && account.Status__c!='Inactive' && (Trigger.oldMap.get(account.Id).Name != account.Name ||
+                                                                                      Trigger.oldMap.get(account.Id).Credit_Union_ID__c != account.Credit_Union_ID__c||                                 
+                                                                                        Trigger.oldMap.get(account.Id).Account_ID__c != account.Account_ID__c||
+                                                                                      Trigger.oldMap.get(account.Id).Status__c != account.Status__c|| 
+                                                                                      Trigger.oldMap.get(account.Id).Record_Type_Name__c != account.Record_Type_Name__c||
+                                                                                      Trigger.oldMap.get(account.Id).Location_address__Street__s != account.Location_address__Street__s|| 
+                                                                                      Trigger.oldMap.get(account.Id).Location_address__City__s != account.Location_address__City__s|| 
+                                                                                      Trigger.oldMap.get(account.Id).Location_address__StateCode__s != account.Location_address__StateCode__s|| 
+                                                                                      Trigger.oldMap.get(account.Id).Location_address__PostalCode__s != account.Location_address__PostalCode__s|| 
+                                                                                      Trigger.oldMap.get(account.Id).Location_address__CountryCode__s != account.Location_address__CountryCode__s|| 
+                                                                                      Trigger.oldMap.get(account.Id).Location_Address_Line_2__c != account.Location_Address_Line_2__c|| 
+                                                                                      Trigger.oldMap.get(account.Id).Close_out_Date__c != account.Close_out_Date__c||
+                                                                                      Trigger.oldMap.get(account.Id).IsGreenPathLocation__c != account.IsGreenPathLocation__c||
+                                                                                      Trigger.oldMap.get(account.Id).Phone != account.Phone||
+                                                                                      Trigger.oldMap.get(account.Id).Contract_Organization__c != account.Contract_Organization__c||
+                                                                                      Trigger.oldMap.get(account.Id).Partner_Sharing_Restrictions__c != account.Partner_Sharing_Restrictions__c||
+                                                                                      Trigger.oldMap.get(account.Id).Partner_Sharing_Restrictions_Comment__c != account.Partner_Sharing_Restrictions_Comment__c||
+                                                                                      Trigger.oldMap.get(account.Id).Program_Start_Date__c != account.Program_Start_Date__c||
+                                                                                      Trigger.oldMap.get(account.Id).Co_Branded_URL__c != account.Co_Branded_URL__c||
+                                                                                      Trigger.oldMap.get(account.Id).GPFW_Unique_Phone_Number__c != account.GPFW_Unique_Phone_Number__c||
+                                                                                      Trigger.oldMap.get(account.Id).DNIS_Talking_Points__c != account.DNIS_Talking_Points__c||
+                                                                                      //Trigger.oldMap.get(account.Id).Web_Link__c != account.Web_Link__c||
+                                                                                      Trigger.oldMap.get(account.Id).Is_the_partner_also_a_creditor__c != account.Is_the_partner_also_a_creditor__c||
+                                                                                      Trigger.oldMap.get(account.Id).Internal_Co_Owner__c != account.Internal_Co_Owner__c||
+                                                                                      Trigger.oldMap.get(account.Id).Merged__c != account.Merged__c||
+                                                                                      Trigger.oldMap.get(account.Id).Merged_With__c != account.Merged_With__c||
+                                                                                      Trigger.oldMap.get(account.Id).Number_of_People_Served__c != account.Number_of_People_Served__c||
+                                                                                      Trigger.oldMap.get(account.Id).ParentId != account.ParentId||
+                                                                                      Trigger.oldMap.get(account.Id).Organization_Co_Owner__c != account.Organization_Co_Owner__c||
+                                                                                      Trigger.oldMap.get(account.Id).Parent_Account_ID__c != account.Parent_Account_ID__c||
+                                                                                      Trigger.oldMap.get(account.Id).Previously_Known_As__c != account.Previously_Known_As__c||
+                                                                                      Trigger.oldMap.get(account.Id).Partner_Experience_Manager__c != account.Partner_Experience_Manager__c||
+                                                                                      Trigger.oldMap.get(account.Id).Routing_Numbers__c != account.Routing_Numbers__c||
+                                                                                      Trigger.oldMap.get(account.Id).Type != account.Type||
+                                                                                      Trigger.oldMap.get(account.Id).Veteran_Organization__c != account.Veteran_Organization__c||
+                                                                                      Trigger.oldMap.get(account.Id).Active_VFC_Partner__c != account.Active_VFC_Partner__c||
+                                                                                      Trigger.oldMap.get(account.Id).Learning_Lab_Premium_Portal_URL__c != account.Learning_Lab_Premium_Portal_URL__c||
+                                                                                      //Trigger.oldMap.get(account.Id).Learning_Lab_Champion__c != account.Learning_Lab_Champion__c||
+                                                                                      Trigger.oldMap.get(account.Id).Receives_reporting__c != account.Receives_reporting__c||
+                                                                                      Trigger.oldMap.get(account.Id).Website != account.Website))
+            {
+                account.Fileds_Check__c = true;
+            } else if(Trigger.oldMap.get(account.Id).Move_to_FIQUEST__c != account.Move_to_FIQUEST__c){
+                account.Fileds_Check__c = true;
+            }
+        }
+        
+    } 
+}

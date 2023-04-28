@@ -1,0 +1,147 @@
+public class FiquestIntegretion_Update {
+      //private static final Integer TIMEOUT = 120000;
+    @Future(callout=true)
+    public static void  getAccessToken(Set<Id> accountIdSet3) 
+    {
+        Set<Id> accountId = new Set<Id>();
+        String resourceUrl = System.Label.Resource;
+        String endpoint = System.Label.AccessToken;
+        String clientId = System.Label.ClientID;
+        String clientSecret =System.Label.ClientScerect;
+        string postapiurl =System.Label.PostAPI;
+        String grantType = system.Label.GrantType;
+        
+        // Resource url send list way
+        List<String> audience = new List<String>{resourceUrl};
+            //Passthe combination of both values
+        String credentials = EncodingUtil.base64Encode(Blob.valueOf(clientId + ':' + clientSecret));
+        String requestContent = 'grant_type=' + grantType + '&resource=' + resourceUrl;
+        String requestContent2 = 'grant_type=' + grantType;
+        
+        HttpRequest request = new HttpRequest();
+        request.setEndpoint(endpoint);
+        request.setMethod('POST');
+       // request.setTimeout(TIMEOUT); // set timeout to 2 minutes
+       request.setTimeout(120000);
+        request.setHeader('Authorization', 'Basic ' + credentials);
+        request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
+        request.setBody(requestContent2);
+         system.debug('requestcallout'+request);
+        Http http = new Http();
+        HTTPResponse response = http.send(request);
+        system.debug('responsecallout'+response);
+        if (response.getStatusCode() == 200)
+        {
+            Map<String, Object> responseMap = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
+            String accessToken = (String) responseMap.get('access_token');
+            System.debug(accessToken);
+            
+            // pass the again http rquest to get the JWT token 
+            HttpRequest request2 = new HttpRequest();
+            request2.setEndpoint(endpoint);
+            request2.setMethod('POST');
+            //request2.setTimeout(120000); // set timeout to 2 minutes
+            request2.setHeader('Authorization', 'Basic ' + credentials);
+            request2.setHeader('Content-Type', 'application/x-www-form-urlencoded');
+            request2.setBody(requestContent);
+            System.debug('JWT Access Token: ' + request2);
+            Http http2 = new Http();
+            HTTPResponse response2 = http2.send(request2);
+            if (response2.getStatusCode() == 200)
+            {
+                Map<String, Object> responseMap2 = (Map<String, Object>) JSON.deserializeUntyped(response2.getBody());
+                String accessToken2 = (String) responseMap2.get('access_token');
+                System.debug('JWT Access Token: ' + accessToken2);
+                List<Account> accounts = [SELECT Id,Move_to_FIQUEST__c,Record_Type_Name__c, Name,Credit_Union_ID__c,Account_ID__c,Status__c,
+                                         Parent_Account_int__c,Location_address__Street__s,Location_address__City__s,Location_address__StateCode__s,
+                                          Location_address__PostalCode__s,Location_address__CountryCode__s,
+                                          Business_Development_Owner_int__c,Close_out_Date__c,Location_Address_Line_2__c,
+                                          Phone,Contract_Organization__c,Program_Start_Date__c,Partner_Sharing_Restrictions__c,Partner_Sharing_Restrictions_Comment__c,
+                                          Co_Branded_URL__c,GPFW_Unique_Phone_Number__c,DNIS_Talking_Points__c,Web_Link__c,
+                                          IsGreenPathLocation__c,Is_the_partner_also_a_creditor__c,Internal_Owner1__c,Merged__c,
+                                          Number_of_People_Served__c,ParentId,Parent_Account_ID__c,
+                                          Previously_Known_As__c,Routing_Numbers__c,Veteran_Organization__c,
+                                          Active_VFC_Partner__c,Merged_With__c,Website,Learning_Lab_Premium_Portal_URL__c,Partner_s_general_website__c,
+                                          Learning_Lab_Champion__c,Receives_reporting__c,Internal_Owner_int__c FROM Account where Move_to_FIQUEST__c=true and Id IN:accountIdSet3];
+                //Learning_Lab_Champion__c,
+                List<Map<String, Object>> users = new List<Map<String, Object>>();
+                Map<String, Object> userMap = new Map<String, Object>();
+                for (Account account : accounts) {
+                    userMap.put('PartnerName', account.Name);
+                    userMap.put('PartnerID', account.Credit_Union_ID__c);
+                    userMap.put('accountId', account.Account_ID__c);
+                    userMap.put('salesStage', account.Status__c);
+                    userMap.put('accountPartnerRecordType', account.Record_Type_Name__c);
+                    userMap.put('locationAddressLine1',  account.Location_address__Street__s+','+account.Location_address__City__s+','+account.Location_address__StateCode__s+','+account.Location_address__PostalCode__s+','+account.Location_address__CountryCode__s);
+                  userMap.put('locationAddressLine2', account.Location_Address_Line_2__c);
+                    userMap.put('locationCity', account.Location_address__City__s);
+                    userMap.put('locationCountry', account.Location_address__CountryCode__s);
+                    userMap.put('locationState', account.Location_address__StateCode__s);
+                    userMap.put('locationStreet', account.Location_address__Street__s);
+                    userMap.put('locationZipCode', account.Location_address__PostalCode__s);
+                    userMap.put('businessDevelopmentOwner', account.Business_Development_Owner_int__c);
+                    userMap.put('cancellationEffectiveDate', account.Close_out_Date__c);
+                    userMap.put('greenPathFieldLocation', account.IsGreenPathLocation__c);
+                    userMap.put('phone', account.Phone);
+                    userMap.put('contractOrganization', account.Contract_Organization__c);
+                    userMap.put('partnerSharingRestrictions', account.Partner_Sharing_Restrictions__c);
+                    userMap.put('partnerSharingRestrictionsComment', account.Partner_Sharing_Restrictions_Comment__c);
+                    userMap.put('partnershipStartDate', account.Program_Start_Date__c);
+                    userMap.put('coBrandedWebsiteUrl', account.Co_Branded_URL__c);
+                    userMap.put('dnis', account.GPFW_Unique_Phone_Number__c);
+                    userMap.put('dnisTalkingPoints', account.DNIS_Talking_Points__c);
+                    userMap.put('partnerWebsite', account.Web_Link__c);
+                     userMap.put('partnerGeneralWebsite', account.Website);
+                    userMap.put('isPartnerAlsoCreditor', account.Is_the_partner_also_a_creditor__c);
+                    userMap.put('internalCoOwner', account.Internal_Owner1__c);
+                    userMap.put('mergerOnFile', account.Merged__c);
+                    userMap.put('mergedWith', account.Merged_With__c);
+                    userMap.put('numberOfPeopleServed', account.Number_of_People_Served__c);
+                    userMap.put('parentAccount', account.Parent_Account_int__c);
+                   // userMap.put('organizationCoOwner', account.Organization_Co_Owner_int__c);
+                    userMap.put('parentAccountId', account.Parent_Account_ID__c);
+                    userMap.put('partnerAKAs', account.Previously_Known_As__c);
+                    userMap.put('internalOwner', account.Internal_Owner_int__c);
+                    userMap.put('routingNumbers', account.Routing_Numbers__c);
+                    //userMap.put('partnerSubType', account.Type);
+                    userMap.put('veteranOrganization', account.Veteran_Organization__c);
+                    userMap.put('activeVFCPartner', account.Active_VFC_Partner__c);
+                    userMap.put('learningLabAndPremiumPortalUrl', account.Learning_Lab_Premium_Portal_URL__c);
+                    userMap.put('llTier', account.Learning_Lab_Champion__c);
+                    userMap.put('receivesReporting', account.Receives_reporting__c);
+                    users.add(userMap);
+                }
+                // Convert the list of user maps to a JSON string
+                String usersJson = JSON.serialize(users);
+                
+                system.debug('usersJson>>>>>'+usersJson);
+                // we pass the request to get the api data acessing 
+                HttpRequest request3 = new HttpRequest();
+                request3.setEndpoint(postapiurl);
+                request3.setMethod('POST');
+                request3.setTimeout(120000);
+                request3.setHeader('Authorization', 'Bearer ' + accessToken2);
+                request3.setHeader('Content-Type', 'application/json');
+                request3.setBody(usersJson);
+                system.debug('request3>>>'+request3);
+                HTTPResponse jwtResponse = http.send(request3);
+                system.debug('response2>>>'+jwtResponse);
+                system.debug('FinalResponsebody>>>'+jwtResponse.getBody()); 
+                if (jwtResponse.getStatusCode() == 200)
+            {
+                Account acc = [Select Id,name,Fileds_Check__c from Account where Id=:accountIdSet3];
+                acc.Fileds_Check__c = false;
+                update acc;
+            }else{
+                 System.debug('FinalPost Error: ' + jwtResponse.getBody());
+            }
+                
+            } else {
+                System.debug('JWT Access Token Error: ' + response2.getBody());
+            }
+            
+        } else {
+            System.debug('Access code LOgin Error ' + response.getStatusCode() + ' and response ' + response.getBody());
+        }
+    }
+}

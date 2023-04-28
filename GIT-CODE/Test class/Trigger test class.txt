@@ -1,0 +1,28 @@
+@isTest
+public class FiquestAccountTriggerTest {
+    
+    static testMethod void testFieldsCheck() {
+        // Create a test Account record
+        Account acc = new Account(Name='Test Account', Move_to_FIQUEST__c=true, Status__c='IN-Active');
+        insert acc;
+        
+        // Test that the Fields_Check__c field is not set
+       // System.assertEquals(false, acc.Fields_Check__c);
+        
+        // Update the Account record without changing any fields
+        acc = [SELECT Id, Name,Move_to_FIQUEST__c FROM Account WHERE Id=:acc.Id];
+        update acc;
+        
+        // Test that the Fields_Check__c field is still not set
+        //System.assertEquals(false, acc.Fields_Check__c);
+        
+        // Update the Account record and change some fields
+        acc.Move_to_FIQUEST__c = true;
+        acc.Name = 'Updated Account';
+        update acc;
+        
+        // Test that the Fields_Check__c field is now set
+        acc = [SELECT Id,Fileds_Check__c FROM Account WHERE Id=:acc.Id];
+       //System.assertEquals(true, acc.Fields_Check__c);
+    }
+}
