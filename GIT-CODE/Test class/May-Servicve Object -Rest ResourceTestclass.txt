@@ -1,0 +1,42 @@
+@IsTest
+public class serviceUpsertResourceTest {
+    @IsTest
+    static void testInsertServiceRequest() {
+        // Test data
+        List<serviceUpsertResource.ServiceWrapper> serviceList = new List<serviceUpsertResource.ServiceWrapper>();
+        serviceUpsertResource.ServiceWrapper wrapper = new serviceUpsertResource.ServiceWrapper();
+        wrapper.Service_ID = '123';
+        wrapper.Service_Code = 'CODE';
+        wrapper.Service_Name = 'Test Service';
+        wrapper.Service_Date_Activation = '2023-01-01';
+        wrapper.Service_Date_Deactivation = '2023-12-31';
+        wrapper.Status = 'Active';
+        serviceList.add(wrapper);
+
+        RestRequest request = new RestRequest();
+        request.requestBody = Blob.valueOf(JSON.serialize(serviceList));
+
+        RestContext.request = request;
+        RestContext.response = new RestResponse();
+
+        // Test insertServiceRequest method
+        Test.startTest();
+        serviceUpsertResource.insertServiceRequest();
+        Test.stopTest();
+
+        // Verify the results
+        RestResponse response = RestContext.response;
+        System.assertEquals(200, response.statusCode);
+        List<serviceUpsertResource.ServiceWrapper> responseList = (List<serviceUpsertResource.ServiceWrapper>) JSON.deserialize(response.responseBody.toString(), List<serviceUpsertResource.ServiceWrapper>.class);
+        System.assertEquals(1, responseList.size());
+
+        // Verify the created Service__c record
+        Service__c createdService = [SELECT Id, Name, Service_ID__c, Service_Code__c, ExternalID__c, Service_Date_of_Activation__c, Service_Date_of_Deactivation__c, Status__c FROM Service__c];
+        System.assertEquals('123', String.valueOf(createdService.Service_ID__c));
+        System.assertEquals('CODE', createdService.Service_Code__c);
+        System.assertEquals('123 - CODE', createdService.ExternalID__c);
+        System.assertEquals(Date.valueOf('2023-01-01'), createdService.Service_Date_of_Activation__c);
+        System.assertEquals(Date.valueOf('2023-12-31'), createdService.Service_Date_of_Deactivation__c);
+        System.assertEquals('Active', createdService.Status__c);
+    }
+}
