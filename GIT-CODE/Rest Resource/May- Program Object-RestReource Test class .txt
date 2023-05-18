@@ -1,0 +1,127 @@
+@isTest
+private class ProgramUpsertResourceTest {
+    @isTest
+    static void testUpsertAccount() {
+        // Create a test request with a valid JSON payload
+        RestRequest req = new RestRequest();
+        req.requestURI = '/programUpsertResource/';
+        req.httpMethod = 'POST';
+        req.addHeader('Content-Type', 'application/json');
+        req.requestBody = Blob.valueOf('[{"Name":"Test Program","Status":"Active","Description":"teyusudsjdsayadaui","ProgramID":"1232257252","ProgramCode":"123456","StartDate":"2023-05-10","EndDate":"2023-05-10","BILLEDFROM":"HPF","ACCESSPOINTS":"Inclusion File","SessionFee":"0.00","EnrollmentFee":"0.00","CancellationFee":"0.00","RecurringFee":"0.00","RecordType":"Housing Program","ServiceAssociated":"435363678"}]');
+
+        // Create a test response
+        RestResponse res = new RestResponse();
+
+        // Call the REST service method
+        Test.startTest();
+        RestContext.request = req;
+        RestContext.response = res;
+        ProgramUpsertResource.upsertAccount();
+        Test.stopTest();
+
+        // Verify the response status code and body
+        System.assertEquals(200, res.statusCode);
+      System.assertEquals('[]', res.responseBody.toString());
+        
+        // Verify the created Program__c record
+       Program__c program = [SELECT Name, Program_Status__c FROM Program__c LIMIT 1];
+      System.assertEquals('Test Program', program.Name);
+        System.assertEquals('Active', program.Program_Status__c);
+    }
+    @isTest
+    static void testUpsertAccountWithGenericRecordType() {
+        // Create a test request with a valid JSON payload containing Generic Program record type
+        RestRequest req = new RestRequest();
+        req.requestURI = '/programUpsertResource/';
+        req.httpMethod = 'POST';
+        req.addHeader('Content-Type', 'application/json');
+        req.requestBody = Blob.valueOf('[{"Name":"Test Program","RecordType":"Generic Program"}]');
+
+        // Create a test response
+        RestResponse res = new RestResponse();
+
+        // Call the REST service method
+        Test.startTest();
+        RestContext.request = req;
+        RestContext.response = res;
+        ProgramUpsertResource.upsertAccount();
+        Test.stopTest();
+
+        // Verify the created Program__c record with Generic Program record type
+       Program__c program = [SELECT Name, RecordType.Name FROM Program__c LIMIT 1];
+       System.assertEquals('Test Program', program.Name);
+       System.assertEquals('Generic Program', program.RecordType.Name);
+    }
+    @isTest
+    static void testUpsertAccountWithGrantRecordType() {
+        // Create a test request with a valid JSON payload containing Grant Program record type
+        RestRequest req = new RestRequest();
+        req.requestURI = '/programUpsertResource/';
+        req.httpMethod = 'POST';
+        req.addHeader('Content-Type', 'application/json');
+        req.requestBody = Blob.valueOf('[{"Name":"Test Program","RecordType":"Grant Program"}]');
+
+        // Create a test response
+        RestResponse res = new RestResponse();
+
+        // Call the REST service method
+        Test.startTest();
+        RestContext.request = req;
+        RestContext.response = res;
+        ProgramUpsertResource.upsertAccount();
+        Test.stopTest();
+
+        // Verify the created Program__c record with Grant Program record type
+       Program__c program = [SELECT Name, RecordType.Name FROM Program__c LIMIT 1];
+       System.assertEquals('Test Program', program.Name);
+       System.assertEquals('Grant Program', program.RecordType.Name);
+    }
+
+
+    @isTest
+    static void testInvalidRequest() {
+        // Create a test request with an empty payload
+        RestRequest req = new RestRequest();
+        req.requestURI = '/programUpsertResource/';
+        req.httpMethod = 'POST';
+        req.addHeader('Content-Type', 'application/json');
+        req.requestBody = Blob.valueOf('');
+
+        // Create a test response
+        RestResponse res = new RestResponse();
+
+        // Call the REST service method
+        Test.startTest();
+        RestContext.request = req;
+        RestContext.response = res;
+        ProgramUpsertResource.upsertAccount();
+        Test.stopTest();
+
+        // Verify the response status code and body for invalid request
+        System.assertEquals(500, res.statusCode);
+        System.assertEquals('Invalid Request', res.responseBody.toString());
+    }
+     @isTest
+    static void testExceptionHandling() {
+        // Create a test request with an invalid JSON payload
+        RestRequest req = new RestRequest();
+        req.requestURI = '/programUpsertResource/';
+        req.httpMethod = 'POST';
+        req.addHeader('Content-Type', 'application/json');
+        req.requestBody = Blob.valueOf('[{"Name":"Test Program","Status":"Active"');
+
+        // Create a test response
+        RestResponse res = new RestResponse();
+
+        // Call the REST service method
+        Test.startTest();
+        RestContext.request = req;
+        RestContext.response = res;
+        ProgramUpsertResource.upsertAccount();
+        Test.stopTest();
+
+        // Verify the response status code and body for exception handling
+        System.assertEquals(500, res.statusCode);
+        System.assertNotEquals(null, res.responseBody);
+    }
+}

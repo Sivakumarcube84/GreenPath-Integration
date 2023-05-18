@@ -1,0 +1,126 @@
+@RestResource(urlMapping='/programUpsertResource/*')
+global class ProgramUpsertResource {
+    @HttpPost
+    global static void upsertAccount() {
+        
+        List<ProgramWrapper> programList = new List<ProgramWrapper>();
+        List<Program__c> programListadd = new List<Program__c>();
+        RestRequest Req = RestContext.request;
+        RestResponse res = RestContext.response;
+        String body = Req.requestBody.toString().trim();
+        if (body != null && body != '')
+        {
+            try
+            {
+                programList = (List<ProgramWrapper>)JSON.deserialize(body, List<ProgramWrapper>.class);
+                System.debug('serviceList>>' + programList);
+                for (ProgramWrapper we : programList)
+                {
+                    Program__c  s = new Program__c();
+                    if (we.Name != null && we.Name != ''){
+                        s.Name = we.Name;
+                    } 
+
+                    if (we.ProgramID != null && we.ProgramID != ''){
+                        s.Program_ID__c =  decimal.valueOf(we.ProgramID);
+                    }
+                    if (we.ProgramCode != null && we.ProgramCode != ''){
+                        s.Program_Code__c = we.ProgramCode;
+                    }
+                    if (we.ProgramCode != null && we.ProgramCode != ''){
+                        s.ExternalFiled__c = we.ProgramID+' - '+ we.ProgramCode;
+                    }
+                        s.Program_Start_Date__c =  Date.valueOf(we.StartDate);
+                   s.Program_End_Date__c =  Date.valueOf(we.EndDate);
+                     s.Billed_From__c = we.BILLEDFROM;
+                s.Channel_Access_Point_s__c = we.ACCESSPOINTS;
+                    
+                    if (we.SessionFee != null && we.SessionFee != ''){
+                        s.Client_Session_Fee__c  =decimal.valueOf( we.SessionFee);
+                    } 
+                    else
+                        s.Client_Session_Fee__c =Null;
+                    
+                    if (we.EnrollmentFee != null && we.EnrollmentFee != ''){
+                        s.Client_Enrollment_Fee__c  =decimal.valueOf( we.EnrollmentFee);
+                    } 
+                    else
+                        s.Client_Enrollment_Fee__c = Null;
+                    
+                    if (we.CancellationFee != null && we.CancellationFee != ''){
+                        s.Client_Cancellation_Fee__c  =decimal.valueOf( we.CancellationFee);
+                    }  
+                    else
+                        s.Client_Cancellation_Fee__c = Null;
+                    
+                    if (we.RecurringFee != null && we.RecurringFee != ''){
+                        s.Client_Recurring_Fee__c  =decimal.valueOf( we.RecurringFee);
+                    } 
+                    else
+                        s.Client_Recurring_Fee__c = Null;
+                    if (we.RecordType != null && we.RecordType != '')
+                    {
+                        
+                        if(we.RecordType=='Grant Program'){
+                            RecordType rr = [Select id, Name From RecordType where SobjectType = 'Program__c' AND Name ='Grant Program'];   
+                            s.RecordTypeId  =rr.id;
+                        }
+                        else if(we.RecordType=='Generic Program')
+                        {
+                            RecordType rr = [Select id, Name From RecordType where SobjectType = 'Program__c' AND Name ='Generic Program'];   
+                            s.RecordTypeId  =rr.id;
+                        }
+                        else if(we.RecordType=='Housing Program'){
+                            RecordType rr = [Select id, Name From RecordType where SobjectType = 'Program__c' AND Name ='Housing Program'];   
+                            s.RecordTypeId  =rr.id;
+                        }
+                    } 
+                        s.Service_Associated__c  = we.ServiceAssociated;
+                        
+                        s.Program_Status__c = we.Status;
+                        s.Program_Description__c = we.Description;
+                    
+                    
+                    programListadd.add(s);
+                    System.debug('SizeofList' + programListadd.size());
+                    System.debug('programListadd>>>>' + programListadd);
+                    
+                    Schema.SObjectField ftoken = Program__c.Fields.ExternalFiled__c;
+                    Database.UpsertResult[] srList = Database.upsert (programListadd, ftoken, false);
+                    System.debug('srlist>>' + srlist);
+                    res.statusCode = 200;
+                    res.responseBody = Blob.valueOf(String.valueof(programListadd));
+                    System.debug('res.responseBody>>' + res.responseBody);
+                }
+            }
+            catch (Exception e){
+                res.statusCode = 500;
+                res.responseBody = Blob.valueOf(e.getMessage());
+                System.debug('res.responseBody>>' + res.responseBody);
+            }
+        } else{
+            res.statusCode = 500;
+            res.responseBody = Blob.valueOf('Invalid Request');
+        }
+    }
+    
+    
+    public class ProgramWrapper{
+        public String Name { get; set; }
+        public String Description { get; set; }
+        public String Status { get; set; }
+        public String ProgramID{ get; set; }
+        public String ProgramCode { get; set; }
+        public String StartDate{ get; set; }
+        public String  EndDate{get;set;}
+        public String  BILLEDFROM {get;set;}
+        public String  ACCESSPOINTS {get;set;}
+        public String  SessionFee{get;set;}
+        public String EnrollmentFee{get;set;}
+        public String  CancellationFee{get;set;}
+        public String   RecurringFee{get;set;}
+        public String   RecordType{get;set;}
+        public String   ServiceAssociated {get;set;}
+        
+    }
+}
