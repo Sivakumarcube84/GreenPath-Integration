@@ -20,7 +20,7 @@ global class ProgramUpsertResource {
                     if (we.Name != null && we.Name != ''){
                         s.Name = we.Name;
                     } 
-
+                    
                     if (we.ProgramID != null && we.ProgramID != ''){
                         s.Program_ID__c =  decimal.valueOf(we.ProgramID);
                     }
@@ -30,10 +30,29 @@ global class ProgramUpsertResource {
                     if (we.ProgramCode != null && we.ProgramCode != ''){
                         s.ExternalFiled__c = we.ProgramID+' - '+ we.ProgramCode;
                     }
+                    if (we.StartDate != null && we.StartDate != ''){
                         s.Program_Start_Date__c =  Date.valueOf(we.StartDate);
-                   s.Program_End_Date__c =  Date.valueOf(we.EndDate);
-                     s.Billed_From__c = we.BILLEDFROM;
-                s.Channel_Access_Point_s__c = we.ACCESSPOINTS;
+                    }
+                    else
+                    s.Program_Start_Date__c =  Null;
+                    
+                    if (we.EndDate != null && we.EndDate != ''){
+                        s.Program_End_Date__c =  Date.valueOf(we.EndDate);
+                    }
+                    else
+                    s.Program_End_Date__c =  Null;
+                    
+                    if (we.BILLEDFROM != null && we.BILLEDFROM != ''){
+                        s.Billed_From__c = we.BILLEDFROM;
+                    }
+                        else
+                    s.Billed_From__c = '';
+                    
+                    if (we.ACCESSPOINTS != null && we.ACCESSPOINTS != ''){
+                        s.Channel_Access_Point_s__c = we.ACCESSPOINTS;
+                    }
+                        else
+                    s.Channel_Access_Point_s__c = '';
                     
                     if (we.SessionFee != null && we.SessionFee != ''){
                         s.Client_Session_Fee__c  =decimal.valueOf( we.SessionFee);
@@ -74,11 +93,31 @@ global class ProgramUpsertResource {
                             RecordType rr = [Select id, Name From RecordType where SobjectType = 'Program__c' AND Name ='Housing Program'];   
                             s.RecordTypeId  =rr.id;
                         }
-                    } 
+                       
+                    }
+                    /*else{
+                               RecordType rr = [Select id, Name From RecordType where SobjectType = 'Program__c' AND Name ='Grant Program'];   
+                            s.RecordTypeId  =rr.id;
+                        }*/
+                   
+                    
+                    if (we.ServiceAssociated != null && we.ServiceAssociated != ''){
                         s.Service_Associated__c  = we.ServiceAssociated;
-                        
+                    } 
+                        else
+                    s.Service_Associated__c  = '';
+                    
+                    if (we.Status != null && we.Status != ''){
                         s.Program_Status__c = we.Status;
+                    } 
+                        else
+                    s.Program_Status__c = '';
+                    if (we.Description != null && we.Description != ''){
                         s.Program_Description__c = we.Description;
+                    } 
+                        else
+                    s.Program_Description__c = '';
+                    
                     
                     
                     programListadd.add(s);
@@ -89,18 +128,23 @@ global class ProgramUpsertResource {
                     Database.UpsertResult[] srList = Database.upsert (programListadd, ftoken, false);
                     System.debug('srlist>>' + srlist);
                     res.statusCode = 200;
-                    res.responseBody = Blob.valueOf(String.valueof(programListadd));
+                    res.addHeader('Content-Type', 'application/json');
+                    res.responseBody = Blob.valueOf(JSON.serialize(programListadd));
                     System.debug('res.responseBody>>' + res.responseBody);
                 }
             }
             catch (Exception e){
                 res.statusCode = 500;
-                res.responseBody = Blob.valueOf(e.getMessage());
+                res.addHeader('Content-Type', 'application/json');
+                res.responseBody = Blob.valueOf(e.getInaccessibleFields()+e.getTypeName());
                 System.debug('res.responseBody>>' + res.responseBody);
             }
         } else{
             res.statusCode = 500;
+            res.addHeader('Content-Type', 'application/json');
             res.responseBody = Blob.valueOf('Invalid Request');
+            System.debug('res.responseBody>>' + res.responseBody);
+            
         }
     }
     
